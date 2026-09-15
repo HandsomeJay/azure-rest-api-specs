@@ -1,0 +1,106 @@
+import "@azure-tools/typespec-azure-core";
+import "@azure-tools/typespec-azure-resource-manager";
+import "@typespec/openapi";
+import "@typespec/rest";
+import "@typespec/versioning";
+import "./models.tsp";
+import "./Profile.tsp";
+
+using TypeSpec.Rest;
+using Azure.ResourceManager;
+using TypeSpec.Http;
+using TypeSpec.OpenAPI;
+using TypeSpec.Versioning;
+
+namespace Microsoft.Cdn;
+/**
+ * An error policy describes how AzureFrontDoor treats the error responses returned by an origin. A route references a policy and supplies the error response status codes that trigger it, so a single policy can be reused by routes that fail with different status codes.
+ */
+@added(Versions.v2026_09_01_preview)
+@parentResource(Profile)
+model ErrorPolicy
+  is Azure.ResourceManager.ProxyResource<ErrorPolicyProperties> {
+  ...ResourceNameParameter<
+    Resource = ErrorPolicy,
+    KeyName = "errorPolicyName",
+    SegmentName = "errorPolicies",
+    NamePattern = ""
+  >;
+}
+
+@added(Versions.v2026_09_01_preview)
+@armResourceOperations
+interface ErrorPolicies {
+  /**
+   * Gets an existing error policy within a profile.
+   */
+  get is ArmResourceRead<ErrorPolicy>;
+
+  /**
+   * Creates a new error policy within the specified profile.
+   */
+  #suppress "@azure-tools/typespec-azure-resource-manager/arm-put-operation-response-codes" "Creating an error policy is long running and returns 202, matching the other AzureFrontDoor resources in this specification."
+  #suppress "@azure-tools/typespec-azure-resource-manager/no-response-body" "The 202 carries the in-progress resource, matching the other AzureFrontDoor resources in this specification."
+  @Azure.Core.useFinalStateVia("azure-async-operation")
+  create is ArmResourceCreateOrReplaceAsync<
+    ErrorPolicy,
+    Response =
+      | ArmResourceUpdatedResponse<ErrorPolicy>
+      | ArmResourceCreatedResponse<ErrorPolicy>
+      | (ArmAcceptedLroResponse<LroHeaders = ArmAsyncOperationHeader<FinalResult = ErrorPolicy> &
+          ArmLroLocationHeader<FinalResult = ErrorPolicy>> & {
+          @bodyRoot
+          _: ErrorPolicy;
+        })
+  >;
+
+  /**
+   * Updates an existing error policy within a profile.
+   */
+  #suppress "@azure-tools/typespec-azure-resource-manager/no-response-body" "The 202 carries the in-progress resource, matching the other AzureFrontDoor resources in this specification."
+  @Azure.Core.useFinalStateVia("azure-async-operation")
+  @patch(#{ implicitOptionality: false })
+  update is ArmCustomPatchAsync<
+    ErrorPolicy,
+    PatchModel = ErrorPolicyUpdateParameters,
+    Response =
+      | ArmResponse<ErrorPolicy>
+      | (ArmAcceptedLroResponse<LroHeaders = ArmAsyncOperationHeader<FinalResult = ErrorPolicy> &
+          ArmLroLocationHeader<FinalResult = ErrorPolicy> &
+          Azure.Core.Foundations.RetryAfterHeader> & {
+          @bodyRoot
+          _: ErrorPolicy;
+        })
+  >;
+
+  /**
+   * Deletes an existing error policy within a profile.
+   */
+  #suppress "@azure-tools/typespec-azure-resource-manager/lro-location-header" "Deletion is tracked through azure-asyncoperation, matching the other AzureFrontDoor resources in this specification."
+  #suppress "@azure-tools/typespec-azure-resource-manager/arm-delete-operation-response-codes" "Deleting an error policy is long running and returns 202, matching the other AzureFrontDoor resources in this specification."
+  delete is ArmResourceDeleteWithoutOkAsync<
+    ErrorPolicy,
+    Response =
+      | ArmDeletedResponse
+      | ArmDeleteAcceptedLroResponse<LroHeaders = ArmAsyncOperationHeader &
+          Azure.Core.Foundations.RetryAfterHeader>
+      | ArmDeletedNoContentResponse
+  >;
+
+  /**
+   * Lists all of the existing error policies within a profile.
+   */
+  @list
+  listByProfile is ArmResourceListByParent<ErrorPolicy>;
+}
+
+@@doc(
+  ErrorPolicy.name,
+  "Name of the error policy which is unique within the profile."
+);
+@@doc(
+  ErrorPolicy.properties,
+  "The JSON object that contains the properties of the error policy."
+);
+@@doc(ErrorPolicies.create::parameters.resource, "Error policy properties");
+@@doc(ErrorPolicies.update::parameters.properties, "Error policy properties");

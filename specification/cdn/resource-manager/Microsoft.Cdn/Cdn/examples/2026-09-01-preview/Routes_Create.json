@@ -23,6 +23,17 @@
           }
         ],
         "enabledState": "Enabled",
+        "errorPolicies": [
+          {
+            "errorPolicyReference": {
+              "id": "/subscriptions/subid/resourceGroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorPolicies/errorPolicy1"
+            },
+            "errorResponseCodes": [
+              502,
+              503
+            ]
+          }
+        ],
         "forwardingProtocol": "MatchRequest",
         "grpcState": "Enabled",
         "httpsRedirect": "Enabled",
@@ -73,6 +84,17 @@
           ],
           "deploymentStatus": "NotStarted",
           "enabledState": "Enabled",
+          "errorPolicies": [
+            {
+              "errorPolicyReference": {
+                "id": "/subscriptions/subid/resourceGroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorPolicies/errorPolicy1"
+              },
+              "errorResponseCodes": [
+                502,
+                503
+              ]
+            }
+          ],
           "forwardingProtocol": "MatchRequest",
           "grpcState": "Enabled",
           "httpsRedirect": "Enabled",
@@ -121,6 +143,17 @@
           ],
           "deploymentStatus": "NotStarted",
           "enabledState": "Enabled",
+          "errorPolicies": [
+            {
+              "errorPolicyReference": {
+                "id": "/subscriptions/subid/resourceGroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorPolicies/errorPolicy1"
+              },
+              "errorResponseCodes": [
+                502,
+                503
+              ]
+            }
+          ],
           "forwardingProtocol": "MatchRequest",
           "grpcState": "Enabled",
           "httpsRedirect": "Enabled",
@@ -169,6 +202,17 @@
           ],
           "deploymentStatus": "NotStarted",
           "enabledState": "Enabled",
+          "errorPolicies": [
+            {
+              "errorPolicyReference": {
+                "id": "/subscriptions/subid/resourceGroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorPolicies/errorPolicy1"
+              },
+              "errorResponseCodes": [
+                502,
+                503
+              ]
+            }
+          ],
           "forwardingProtocol": "MatchRequest",
           "grpcState": "Enabled",
           "httpsRedirect": "Enabled",
