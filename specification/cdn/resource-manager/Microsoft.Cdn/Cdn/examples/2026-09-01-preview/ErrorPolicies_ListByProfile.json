@@ -11,8 +11,8 @@
         "value": [
           {
             "name": "errorPolicy1",
-            "type": "Microsoft.Cdn/profiles/errorPolicies",
-            "id": "/subscriptions/subid/resourcegroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorPolicies/errorPolicy1",
+            "type": "Microsoft.Cdn/profiles/errorpolicies",
+            "id": "/subscriptions/subid/resourcegroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorpolicies/errorPolicy1",
             "properties": {
               "deploymentStatus": "NotStarted",
               "description": "Cache origin failures briefly to shield the origin.",
@@ -25,8 +25,8 @@
           },
           {
             "name": "errorPolicy2",
-            "type": "Microsoft.Cdn/profiles/errorPolicies",
-            "id": "/subscriptions/subid/resourcegroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorPolicies/errorPolicy2",
+            "type": "Microsoft.Cdn/profiles/errorpolicies",
+            "id": "/subscriptions/subid/resourcegroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorpolicies/errorPolicy2",
             "properties": {
               "deploymentStatus": "NotStarted",
               "description": "Let the origin decide how long its errors stay cached.",

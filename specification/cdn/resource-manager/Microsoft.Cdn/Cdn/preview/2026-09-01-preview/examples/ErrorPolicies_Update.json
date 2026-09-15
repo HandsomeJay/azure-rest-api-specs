@@ -18,8 +18,8 @@
     "200": {
       "body": {
         "name": "errorPolicy1",
-        "type": "Microsoft.Cdn/profiles/errorPolicies",
-        "id": "/subscriptions/subid/resourcegroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorPolicies/errorPolicy1",
+        "type": "Microsoft.Cdn/profiles/errorpolicies",
+        "id": "/subscriptions/subid/resourcegroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorpolicies/errorPolicy1",
         "properties": {
           "deploymentStatus": "NotStarted",
           "description": "Let the origin decide how long its errors stay cached.",
@@ -37,8 +37,8 @@
       },
       "body": {
         "name": "errorPolicy1",
-        "type": "Microsoft.Cdn/profiles/errorPolicies",
-        "id": "/subscriptions/subid/resourcegroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorPolicies/errorPolicy1",
+        "type": "Microsoft.Cdn/profiles/errorpolicies",
+        "id": "/subscriptions/subid/resourcegroups/RG/providers/Microsoft.Cdn/profiles/profile1/errorpolicies/errorPolicy1",
         "properties": {
           "deploymentStatus": "NotStarted",
           "description": "Let the origin decide how long its errors stay cached.",
