@@ -531,6 +531,24 @@ union ForwardingProtocol {
 }
 
 /**
+ * Fallback mechanism to use when the origin selection action cannot resolve an origin.
+ */
+@added(Versions.v2026_09_01_preview)
+union FallbackMechanism {
+  string,
+
+  /**
+   * Route the request using the default route.
+   */
+  DefaultRoute: "DefaultRoute",
+
+  /**
+   * Fail the request.
+   */
+  FailRequest: "FailRequest",
+}
+
+/**
  * whether this route will be linked to the default endpoint domain.
  */
 union LinkToDefaultDomain {
@@ -646,6 +664,24 @@ union DeliveryRuleActionName {
   @removed(Versions.v2025_12_01)
   @added(Versions.v2026_04_01_preview)
   AfdUrlSigning: "AfdUrlSigning",
+
+  /**
+   * Selects a specific origin to route the request to.
+   */
+  @added(Versions.v2026_09_01_preview)
+  OriginSelection: "OriginSelection",
+
+  /**
+   * Invokes an edge extension to process the request or response.
+   */
+  @added(Versions.v2026_09_01_preview)
+  EdgeExtension: "EdgeExtension",
+
+  /**
+   * Selects a specific origin group to route the request to.
+   */
+  @added(Versions.v2026_09_01_preview)
+  OriginGroupSelection: "OriginGroupSelection",
 }
 
 /**
@@ -1676,6 +1712,24 @@ union DeliveryRuleActionParametersType {
   @removed(Versions.v2025_12_01)
   @added(Versions.v2026_04_01_preview)
   DeliveryRuleEdgeActionParameters: "DeliveryRuleEdgeActionParameters",
+
+  /**
+   * The parameters type for the origin selection action.
+   */
+  @added(Versions.v2026_09_01_preview)
+  DeliveryRuleOriginSelectionActionParameters: "DeliveryRuleOriginSelectionActionParameters",
+
+  /**
+   * The parameters type for the edge extension action.
+   */
+  @added(Versions.v2026_09_01_preview)
+  DeliveryRuleEdgeExtensionActionParameters: "DeliveryRuleEdgeExtensionActionParameters",
+
+  /**
+   * The parameters type for the origin group selection action.
+   */
+  @added(Versions.v2026_09_01_preview)
+  DeliveryRuleOriginGroupSelectionActionParameters: "DeliveryRuleOriginGroupSelectionActionParameters",
 }
 
 #suppress "@azure-tools/typespec-azure-core/documentation-required" "FIXME: Update justification, follow aka.ms/tsp/conversion-fix for details"
@@ -2191,6 +2245,12 @@ union InvocationPoint {
   ClientRequest: "ClientRequest",
   #suppress "@azure-tools/typespec-azure-core/documentation-required" "FIXME: Update justification, follow aka.ms/tsp/conversion-fix for details"
   OriginRequest: "OriginRequest",
+
+  /**
+   * Invoked at the origin response stage, after the response is received from the origin.
+   */
+  @added(Versions.v2026_09_01_preview)
+  OriginResponse: "OriginResponse",
 
   /**
    * Invoked at the client response stage, before the response is returned to the client. Currently only supported for edge actions.
@@ -3321,6 +3381,112 @@ model SharedPrivateLinkResourceProperties {
    * Status of the shared private link resource. Can be Pending, Approved, Rejected, Disconnected, or Timeout.
    */
   status?: SharedPrivateLinkResourceStatus;
+}
+
+/**
+ * The JSON object that contains the properties of the edge extension group.
+ */
+@added(Versions.v2026_09_01_preview)
+model EdgeExtensionGroupProperties {
+  ...EdgeExtensionGroupUpdatePropertiesParameters;
+  ...AFDStateProperties;
+}
+
+/**
+ * The JSON object that contains the properties of the edge extension group used for creation or update.
+ */
+@added(Versions.v2026_09_01_preview)
+model EdgeExtensionGroupUpdatePropertiesParameters {
+  /**
+   * The list of edge extensions in this group.
+   */
+  @Azure.ResourceManager.identifiers(#["edgeExtensionName"])
+  edgeExtensions?: EdgeExtension[];
+
+  /**
+   * The path to remap the incoming URL to.
+   */
+  urlPath?: string;
+
+  /**
+   * The time-to-live (TTL) of the cache in seconds.
+   */
+  @maxValue(31536000)
+  @minValue(1)
+  ttl?: int32;
+
+  /**
+   * Load balancing settings for the edge extension group.
+   */
+  loadBalancingSettings?: LoadBalancingSettingsParameters;
+
+  /**
+   * Health probe settings used to determine the health of the edge extension group.
+   */
+  healthProbeSettings?: HealthProbeParameters;
+
+  /**
+   * Whether to allow session affinity on this host. Valid options are 'Enabled' or 'Disabled'
+   */
+  sessionAffinityState?: EnabledState;
+
+  /**
+   * Authentication settings for the edge extension group.
+   */
+  authentication?: OriginAuthenticationProperties;
+}
+
+/**
+ * Edge extension group properties needed for creation or update.
+ */
+@added(Versions.v2026_09_01_preview)
+model EdgeExtensionGroupUpdateParameters {
+  /**
+   * The JSON object that contains the properties of the edge extension group.
+   */
+  #suppress "@azure-tools/typespec-azure-core/no-legacy-usage" "FIXME: Update justification, follow aka.ms/tsp/conversion-fix for details"
+  @Azure.ClientGenerator.Core.Legacy.flattenProperty
+  properties?: EdgeExtensionGroupUpdatePropertiesParameters;
+}
+
+/**
+ * Defines an edge extension within an edge extension group.
+ */
+@added(Versions.v2026_09_01_preview)
+model EdgeExtension {
+  /**
+   * The name of the edge extension.
+   */
+  edgeExtensionName: string;
+
+  /**
+   * The hostname of the edge extension server. This string should be a domain name.
+   */
+  hostName: string;
+
+  /**
+   * Priority of the edge extension for load balancing. This property is relevant when the group uses multiple edge extensions.
+   */
+  @maxValue(5)
+  @minValue(1)
+  priority?: int32;
+
+  /**
+   * Weight of the edge extension for load balancing. This property is relevant when the group uses multiple edge extensions.
+   */
+  @maxValue(1000)
+  @minValue(1)
+  weight?: int32;
+
+  /**
+   * Whether to enable the edge extension for load balancing. This property is relevant when the group uses multiple edge extensions.
+   */
+  enabledState?: EnabledState;
+
+  /**
+   * The properties of the private link resource for a private edge extension.
+   */
+  sharedPrivateLinkResource?: SharedPrivateLinkResourceProperties;
 }
 
 /**
@@ -8450,6 +8616,135 @@ model OriginGroupOverrideActionParameters extends DeliveryRuleActionParameters {
   originGroup: ResourceReference;
 
   typeName: "DeliveryRuleOriginGroupOverrideActionParameters";
+}
+
+/**
+ * Defines the origin selection action for the delivery rule.
+ */
+@added(Versions.v2026_09_01_preview)
+model OriginSelectionAction extends DeliveryRuleAction {
+  /**
+   * Defines the parameters for the action.
+   */
+  parameters: OriginSelectionActionParameters;
+
+  /**
+   * The name of the action for the delivery rule.
+   */
+  name: "OriginSelection";
+}
+
+/**
+ * Defines the parameters for the origin selection action.
+ */
+@added(Versions.v2026_09_01_preview)
+model OriginSelectionActionParameters extends DeliveryRuleActionParameters {
+  /**
+   * The origin to route the request to. Must be 1-256 characters long and can only contain letters, numbers, underscores, dots, curly brackets, and hyphens.
+   */
+  @pattern("^[a-zA-Z0-9{}_.-]{1,256}$")
+  origin: string;
+
+  /**
+   * Runtime dynamic origin host scope. A single scope pattern is required and must resolve to a registrable root/apex domain (minimum two dots); allow-all is not supported.
+   */
+  @maxLength(253)
+  originHostScope: string;
+
+  /**
+   * The fallback mechanism to use when the origin cannot be resolved.
+   */
+  fallbackMechanism: FallbackMechanism;
+
+  /**
+   * The protocol this action will use when forwarding traffic to the origin.
+   */
+  forwardingProtocol: ForwardingProtocol;
+
+  typeName: "DeliveryRuleOriginSelectionActionParameters";
+}
+
+/**
+ * Defines the origin group selection action for the delivery rule.
+ */
+@added(Versions.v2026_09_01_preview)
+model OriginGroupSelectionAction extends DeliveryRuleAction {
+  /**
+   * Defines the parameters for the action.
+   */
+  parameters: OriginGroupSelectionActionParameters;
+
+  /**
+   * The name of the action for the delivery rule.
+   */
+  name: "OriginGroupSelection";
+}
+
+/**
+ * Defines the parameters for the origin group selection action.
+ */
+@added(Versions.v2026_09_01_preview)
+model OriginGroupSelectionActionParameters
+  extends DeliveryRuleActionParameters {
+  /**
+   * The name of the origin group (within the same profile) to route the request to. May be a literal name or a variable such as "{response.origin}".
+   */
+  @maxLength(253)
+  originGroupName: string;
+
+  /**
+   * The protocol this action will use when forwarding traffic to the origin group.
+   */
+  forwardingProtocol: ForwardingProtocol;
+
+  typeName: "DeliveryRuleOriginGroupSelectionActionParameters";
+}
+
+/**
+ * Defines the edge extension action for the delivery rule.
+ */
+@added(Versions.v2026_09_01_preview)
+model EdgeExtensionAction extends DeliveryRuleAction {
+  /**
+   * Defines the parameters for the action.
+   */
+  parameters: EdgeExtensionActionParameters;
+
+  /**
+   * The name of the action for the delivery rule.
+   */
+  name: "EdgeExtension";
+}
+
+/**
+ * Defines the parameters for the edge extension action.
+ */
+@added(Versions.v2026_09_01_preview)
+model EdgeExtensionActionParameters extends DeliveryRuleActionParameters {
+  /**
+   * Reference to the edge extension group to invoke.
+   */
+  edgeExtensionGroupReference: ResourceReference;
+
+  /**
+   * The point in the request/response lifecycle at which the edge extension is invoked.
+   */
+  invocationPoint: InvocationPoint;
+
+  /**
+   * The input key passed to the edge extension. Must be 1-32 characters long and can only contain letters, numbers, underscores, curly brackets, and hyphens.
+   */
+  #suppress "@azure-tools/typespec-azure-resource-manager/secret-prop" "Not a secret: inputKey is a non-sensitive, regex-validated identifier that maps request context to the edge extension input; it is stored and logged in plaintext by the service."
+  @pattern("^[a-zA-Z0-9{}_-]{1,32}$")
+  inputKey: string;
+
+  /**
+   * The response variable produced by the edge extension. Must be 1-32 characters long and can only contain letters, underscores, and hyphens.
+   */
+  @pattern("^[a-zA-Z_-]{1,32}$")
+  responseVariable: string;
+
+  typeName: "DeliveryRuleEdgeExtensionActionParameters";
 }
 
 /**
